@@ -2,7 +2,7 @@
 step 1: install rust!
 step 2: clone this repo
 
-cargo build
+`cargo build`
 
 NOTE: I had to install the following packages:
 * gcc
