@@ -1,0 +1,17 @@
+[package]
+name = "audioing"
+version = "0.1.0"
+authors = ["david"]
+edition = "2018"
+
+[dependencies]
+cpal = "*"
+glutin = "*"
+gl = "*"
+takeable-option = "*"
+chrono = "*"
+byteorder = "*"
+winit = "*"
+
+[build-dependencies]
+gl_generator = "*"
