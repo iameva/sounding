@@ -1,32 +1,3 @@
-//use std::fs::File;
-//use std::io::BufReader;
-//use rodio::Source;
-//use rodio::Sink;
-//
-//use std::time::Duration;
-//use std::thread::sleep;
-//
-//
-//fn main() {
-//    if let Some(input_device) = rodio::default_input_device() {
-//        if let Some(output_device) = rodio::default_output_device() {
-//            let sink = Sink::new(&output_device);
-//            let source = rodio::source::SineWave::new(440)
-//                .take_duration(Duration::from_secs(2));
-//            sink.append(source);
-//            sink.append(input_device);
-//            rodio::play_raw()
-//            sleep(Duration::from_secs(5));
-//        } else {
-//            println!("Could not find output device")
-//        }
-//    } else {
-//        println!("Could not find input device")
-//    }
-//}
-
-use cpal;
-
 extern crate gl;
 extern crate glutin;
 extern crate chrono;
@@ -34,6 +5,7 @@ extern crate byteorder;
 
 mod support;
 
+use cpal;
 use glutin::Context;
 use gl::types::*;
 use std::mem;
@@ -55,6 +27,7 @@ use winit::{ElementState, VirtualKeyCode};
 
 use chrono::prelude::*;
 use std::env::args;
+use std::process::exit;
 
 
 const SCREEN_WIDTH: f64 = 800.0;
@@ -166,20 +139,7 @@ fn record() {
                         };
                     }
                     cpal::StreamData::Output { buffer: cpal::UnknownTypeOutputBuffer::F32(mut buffer) } => {
-//                    assert_eq!(id, output_stream_id);
-//                    let mut input_fell_behind = None;
-//                    for sample in buffer.iter_mut() {
-//                        *sample = match rx.try_recv() {
-//                            Ok(s) => s,
-//                            Err(err) => {
-//                                input_fell_behind = Some(err);
-//                                0.0
-//                            }
-//                        };
-//                    }
-//                    if let Some(err) = input_fell_behind {
-//                        eprintln!("input stream fell behind: {}: try increasing latency", err);
-//                    }
+
                     }
                     _ => panic!("we're expecting f32 data"),
                 }
@@ -205,12 +165,9 @@ fn record() {
 
     let gl = support::load(&windowed_context.context());
 
-    // DeviceEvent { device_id: DeviceId(X(DeviceId(11))), event: Key(KeyboardInput { scancode: 19, state: Pressed, virtual_keycode: Some(R), modifiers: ModifiersState { shift: false, ctrl: false, alt: false, logo: false } }) }
-
     let mut running = true;
     while running {
         el.poll_events(|event| {
-//            println!("{:?}", event);
             match event {
                 glutin::Event::DeviceEvent { event, .. } => match event {
                     glutin::DeviceEvent::Key(input) => {
@@ -257,7 +214,6 @@ fn record() {
 }
 
 fn play(path: String) {
-
     println!("playing path {:?}", path);
 
     // initialize the audio stuffs
@@ -285,7 +241,7 @@ fn play(path: String) {
     let mut finished = false;
     event_loop.run(move |id, data| {
         if finished {
-            panic!("We're done")
+            exit(0);
         }
         match data {
             cpal::StreamData::Output { buffer: cpal::UnknownTypeOutputBuffer::F32(mut buffer) } => {
