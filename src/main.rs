@@ -78,13 +78,13 @@ fn record() {
 
     let recording = Arc::new(AtomicBool::new(false));
 
-    // The channel to share samples.
-    let (writerTx, writerRx) = std::sync::mpsc::sync_channel(1024);
+    // The channel to send recording data.
+    let (tx, rx) = std::sync::mpsc::sync_channel(1024);
 
     std::thread::spawn(move || {
         let mut file = None;
         loop {
-            match writerRx.recv().unwrap() {
+            match rx.recv().unwrap() {
                 RecordingEvent::Start(path) => {
                     println!("Starting recording on path {:?}", path);
                     file = Some(File::create(path).unwrap());
@@ -125,16 +125,16 @@ fn record() {
                             if !was_recording {
                                 let mut path = base_path.to_path_buf();
                                 path.push(format!("{:06}", count));
-                                writerTx.send(RecordingEvent::Start(path));
+                                tx.send(RecordingEvent::Start(path));
                                 was_recording = true;
                                 count += 1;
                             }
-                            writerTx.send(RecordingEvent::Data(buffer.to_vec()));
+                            tx.send(RecordingEvent::Data(buffer.to_vec()));
                             // send data
                         } else {
                             if was_recording {
                                 was_recording = false;
-                                writerTx.send(RecordingEvent::Stop());
+                                tx.send(RecordingEvent::Stop());
                             }
                         };
                     }
